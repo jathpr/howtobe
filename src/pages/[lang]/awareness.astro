@@ -1,0 +1,77 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { locales, messages, type Locale } from '../../i18n/ui';
+
+interface Props {
+	locale: Locale;
+}
+
+export function getStaticPaths() {
+	return locales.map((locale) => ({
+		params: { lang: locale },
+		props: { locale },
+	}));
+}
+
+const { locale } = Astro.props;
+const page = messages[locale];
+const mediaBaseUrl = import.meta.env.PUBLIC_R2_MEDIA_BASE_URL?.replace(/\/+$/, '');
+const videoUrl = mediaBaseUrl ? `${mediaBaseUrl}/awareness/demo_be.mp4` : undefined;
+---
+
+<SiteLayout
+	locale={locale}
+	title={page.awarenessTitle}
+	description={page.awarenessTitle}
+>
+	<main>
+		<a class="back-link" href={`/${locale}/`}>← {page.backHome}</a>
+		<h1>{page.awarenessTitle}</h1>
+
+		{videoUrl ? (
+			<video controls preload="metadata" playsinline>
+				<source src={videoUrl} type="video/mp4" />
+			</video>
+		) : (
+			<p class="notice">{page.videoUnavailable}</p>
+		)}
+	</main>
+</SiteLayout>
+
+<style>
+	main {
+		display: grid;
+		align-content: center;
+		gap: 1.5rem;
+		width: min(100% - 3rem, 56rem);
+		min-height: 100vh;
+		margin-inline: auto;
+		padding-block: 4rem;
+	}
+
+	.back-link {
+		width: fit-content;
+		font-family: system-ui, sans-serif;
+		font-size: 0.9rem;
+		text-underline-offset: 0.25em;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.5rem, 9vw, 5rem);
+		font-weight: 400;
+		letter-spacing: -0.05em;
+	}
+
+	video {
+		display: block;
+		width: 100%;
+		max-height: 75vh;
+		background: #161616;
+	}
+
+	.notice {
+		margin: 0;
+		font-size: 1.1rem;
+	}
+</style>

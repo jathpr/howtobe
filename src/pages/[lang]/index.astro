@@ -23,6 +23,10 @@ const page = messages[locale];
 		<h1>{page.title}</h1>
 		<p class="intro">{page.intro}</p>
 
+		<p class="page-link">
+			<a href={`/${locale}/awareness/`}>{page.awarenessLink}</a>
+		</p>
+
 		<nav aria-label={page.languageSelection}>
 			{locales.map((language) => (
 				<a href={`/${language}/`} lang={language} aria-current={language === locale ? 'page' : undefined}>
@@ -64,6 +68,11 @@ const page = messages[locale];
 		margin: 2rem 0 0;
 		font-size: clamp(1.15rem, 2.8vw, 1.5rem);
 		line-height: 1.5;
+	}
+
+	.page-link {
+		margin: 2rem 0 0;
+		font-size: 1.2rem;
 	}
 
 	nav {
