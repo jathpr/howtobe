@@ -15,7 +15,7 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props;
 const page = messages[locale];
-const mediaBaseUrl = import.meta.env.PUBLIC_R2_MEDIA_BASE_URL?.replace(/\/+$/, '');
+const mediaBaseUrl = import.meta.env.PUBLIC_VIDEO_BASE_URL?.replace(/\/+$/, '');
 const videoUrl = mediaBaseUrl ? `${mediaBaseUrl}/awareness/demo_be.mp4` : undefined;
 ---
 

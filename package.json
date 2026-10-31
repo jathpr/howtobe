@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:video-worker": "node --test cloudflare/video-worker/src/index.test.js"
   },
   "dependencies": {
     "astro": "^7.4.4"
