@@ -1,0 +1,98 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+interface Props {
+	entry: CollectionEntry<'pages'>;
+}
+
+export async function getStaticPaths() {
+	const pages = await getCollection('pages');
+	return pages
+		.filter((entry) => !entry.id.endsWith('/home') && !entry.id.endsWith('/awareness'))
+		.map((entry) => ({
+			params: {
+				lang: entry.data.lang,
+				slug: entry.id.slice(entry.data.lang.length + 1),
+			},
+			props: { entry },
+		}));
+}
+
+const { entry } = Astro.props;
+const locale = entry.data.lang;
+const { Content } = await render(entry);
+---
+
+<SiteLayout
+	locale={locale}
+	title={entry.data.title}
+	description={entry.data.description}
+>
+	<main class="content-page">
+		<a class="back-link" href={`/${locale}/`}>← {locale === 'be' ? 'На галоўную' : locale === 'ru' ? 'На главную' : 'Back to home'}</a>
+		<h1>{entry.data.title}</h1>
+		<article class="page-content">
+			<Content />
+		</article>
+	</main>
+</SiteLayout>
+
+<style>
+	.content-page {
+		display: grid;
+		align-content: center;
+		gap: clamp(1.25rem, 3vh, 2rem);
+		width: min(100%, 56rem);
+		flex: 1;
+		margin-inline: auto;
+		padding-block: clamp(4rem, 12vh, 8rem);
+	}
+
+	.back-link {
+		width: fit-content;
+		color: var(--muted);
+		font-family: system-ui, sans-serif;
+		font-size: 0.9rem;
+		text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+		text-underline-offset: 0.25em;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(3.5rem, 10vw, 7rem);
+		font-weight: 400;
+		letter-spacing: -0.075em;
+		line-height: 0.98;
+	}
+
+	.page-content {
+		max-width: 42rem;
+		color: var(--muted);
+		font-size: clamp(1.05rem, 2vw, 1.3rem);
+		line-height: 1.65;
+	}
+
+	.page-content :global(h2) {
+		margin-block: 2rem 0.7rem;
+		color: var(--ink);
+		font-size: 1.2em;
+		font-weight: 400;
+	}
+
+	.page-content :global(p) {
+		margin-block: 0 1rem;
+	}
+
+	.page-content :global(ul) {
+		display: grid;
+		gap: 0.6rem;
+		padding-left: 1.2em;
+	}
+
+	.page-content :global(a) {
+		color: var(--ink);
+		text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+		text-underline-offset: 0.25em;
+	}
+</style>

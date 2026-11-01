@@ -1,13 +1,15 @@
 ---
 import type { Locale } from '../i18n/ui';
+import { languageNames, locales, messages } from '../i18n/ui';
 
 interface Props {
 	locale: Locale;
 	title: string;
 	description: string;
+	showChrome?: boolean;
 }
 
-const { locale, title, description } = Astro.props;
+const { locale, title, description, showChrome = true } = Astro.props;
 ---
 
 <!doctype html>
@@ -20,15 +22,50 @@ const { locale, title, description } = Astro.props;
 		<title>{title} — howtobe</title>
 	</head>
 	<body>
-		<slot />
+		{showChrome ? (
+			<div class="site-shell">
+				<header class="site-header">
+					<a class="wordmark" href={`/${locale}/`}>howtobe</a>
+					<nav class="main-nav" aria-label={locale === 'be' ? 'Галоўнае меню' : locale === 'ru' ? 'Главное меню' : 'Main menu'}>
+						<a href={`/${locale}/theory/`}>{messages[locale].navigation.theory}</a>
+						<a href={`/${locale}/practice/`}>{messages[locale].navigation.practice}</a>
+						<a href={`/${locale}/cook/`}>{messages[locale].navigation.cook}</a>
+						<a href={`/${locale}/faq/`}>{messages[locale].navigation.faq}</a>
+					</nav>
+				</header>
+
+				<slot />
+
+				<footer class="site-footer">
+					<nav aria-label={messages[locale].languageSelection}>
+						{locales.map((language) => (
+							<a
+								href={`/${language}/`}
+								lang={language}
+								aria-current={language === locale ? 'page' : undefined}
+							>
+								{languageNames[language]}
+							</a>
+						))}
+					</nav>
+				</footer>
+			</div>
+		) : (
+			<slot />
+		)}
 	</body>
 </html>
 
 <style is:global>
 	:root {
+		--sand: #e9dfcc;
+		--sand-light: #f3eddf;
+		--ink: #302c25;
+		--muted: #746b5c;
+		--accent: #8b6c42;
 		font-family: Georgia, 'Times New Roman', serif;
-		color: #20201e;
-		background: #f5f3ed;
+		color: var(--ink);
+		background: var(--sand);
 		font-synthesis: none;
 		text-rendering: optimizeLegibility;
 	}
@@ -38,12 +75,111 @@ const { locale, title, description } = Astro.props;
 	}
 
 	body {
-		min-width: 320px;
 		min-height: 100vh;
 		margin: 0;
 	}
 
 	a {
 		color: inherit;
+	}
+
+	.site-shell {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+		min-height: 100svh;
+		overflow: hidden;
+		padding: clamp(1.25rem, 4vw, 3rem) clamp(1.25rem, 7vw, 7rem);
+		background:
+			radial-gradient(ellipse at 82% 18%, rgb(255 255 255 / 38%), transparent 29%),
+			linear-gradient(145deg, rgb(255 255 255 / 22%), transparent 62%),
+			var(--sand);
+	}
+
+	.site-header,
+	.site-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		font-family: system-ui, sans-serif;
+	}
+
+	.site-header {
+		width: min(100%, 68rem);
+		margin-inline: auto;
+	}
+
+	.main-nav {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.6rem clamp(0.75rem, 2.5vw, 2rem);
+		font-size: 0.76rem;
+		letter-spacing: 0.04em;
+	}
+
+	.main-nav a {
+		text-decoration: none;
+		text-underline-offset: 0.3em;
+	}
+
+	.main-nav a:hover {
+		text-decoration: underline;
+		text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+	}
+
+	.wordmark {
+		font-family: Georgia, 'Times New Roman', serif;
+		font-size: 1.35rem;
+		letter-spacing: -0.04em;
+		text-decoration: none;
+	}
+
+	.site-footer {
+		width: min(100%, 68rem);
+		margin-inline: auto;
+		padding-top: 1rem;
+		border-top: 1px solid rgb(116 107 92 / 24%);
+		color: var(--muted);
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+	}
+
+	.site-footer nav {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.site-footer a {
+		text-decoration: none;
+		text-underline-offset: 0.25em;
+	}
+
+	.site-footer a[aria-current='page'] {
+		color: var(--ink);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+	}
+
+	@media (max-width: 600px) {
+		.site-shell {
+			padding-inline: 1.35rem;
+		}
+
+		.site-header {
+			align-items: flex-start;
+		}
+
+		.main-nav {
+			max-width: 65%;
+			gap: 0.55rem 0.8rem;
+			font-size: 0.68rem;
+		}
+
+		.site-footer {
+			font-size: 0.68rem;
+		}
 	}
 </style>

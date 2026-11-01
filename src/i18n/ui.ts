@@ -16,9 +16,14 @@ export const messages: Record<
 		intro: string;
 		languageSelection: string;
 		awarenessLink: string;
-		awarenessTitle: string;
 		videoUnavailable: string;
 		backHome: string;
+		navigation: {
+			theory: string;
+			practice: string;
+			cook: string;
+			faq: string;
+		};
 	}
 > = {
 	be: {
@@ -27,9 +32,14 @@ export const messages: Record<
 		intro: 'Гэта пачатак новага сайта.',
 		languageSelection: 'Выбраць мову',
 		awarenessLink: 'Прысутнасць',
-		awarenessTitle: 'Прысутнасць',
 		videoUnavailable: 'Відэа пакуль не падключана.',
 		backHome: 'На галоўную',
+		navigation: {
+			theory: 'Тэорыя',
+			practice: 'Практыка',
+			cook: 'Повар',
+			faq: 'Чаво?',
+		},
 	},
 	ru: {
 		title: 'Здравствуй.',
@@ -37,9 +47,14 @@ export const messages: Record<
 		intro: 'Это начало нового сайта.',
 		languageSelection: 'Выбрать язык',
 		awarenessLink: 'Присутствие',
-		awarenessTitle: 'Присутствие',
 		videoUnavailable: 'Видео пока не подключено.',
 		backHome: 'На главную',
+		navigation: {
+			theory: 'Теория',
+			practice: 'Практика',
+			cook: 'Повар',
+			faq: 'ЧаВо?',
+		},
 	},
 	en: {
 		title: 'Hello.',
@@ -47,8 +62,13 @@ export const messages: Record<
 		intro: 'A new site begins here.',
 		languageSelection: 'Choose a language',
 		awarenessLink: 'Awareness',
-		awarenessTitle: 'Awareness',
 		videoUnavailable: 'The video is not connected yet.',
 		backHome: 'Back to home',
+		navigation: {
+			theory: 'Theory',
+			practice: 'Practice',
+			cook: 'Cook',
+			faq: 'FAQ',
+		},
 	},
 };

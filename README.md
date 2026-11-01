@@ -17,14 +17,33 @@ Astro запусціць лакальны сервер, звычайна на <h
 
 - `astro.config.mjs` — спіс моў, мова па змаўчанні (`be`) і правіла, што ўсе моўныя старонкі маюць прэфікс у URL.
 - `src/pages/index.astro` — стартавая старонка `/`: спрабуе вызначыць мову браўзера і перанакіраваць на адпаведную версію; калі мова не падтрымліваецца, выбірае беларускую.
-- `src/pages/[lang]/index.astro` — галоўныя старонкі `/be/`, `/ru/` і `/en/`.
+- `src/pages/[lang]/index.astro` — галоўныя старонкі `/be/`, `/ru/` і `/en/`; тэкст бярэцца з Markdown.
+- `src/pages/[lang]/[...slug].astro` — астатнія старонкі з Markdown-калекцыі, у тым ліку тэмы тэорыі.
+- `src/content.config.ts` — схема Markdown-старонак і іх праверка.
+- `src/content/pages/{be,ru,en}/` — кантэнт асобна для кожнай мовы; шлях файла вызначае URL. Напрыклад, `be/theory/kindness.md` становіцца `/be/theory/kindness/`.
 - `src/pages/[lang]/awareness.astro` — старонка відэа для кожнай мовы. Крыніца відэа задаецца праз `PUBLIC_VIDEO_BASE_URL`.
 - `src/i18n/ui.ts` — пераклады кароткіх элементаў інтэрфейсу і спіс падтрымліваемых моў.
 - `src/layouts/SiteLayout.astro` — агульная HTML-абалонка; выставіць правільны `lang` і метададзеныя старонкі.
-- `src/pages/` вызначае URL-адрасы сайта; новыя старонкі можна дадаваць у адпаведныя моўныя тэчкі.
+- `src/pages/` і шлях Markdown-файлаў вызначаюць URL-адрасы сайта.
 - `package.json` — назва праекта, залежнасці і каманды `dev`, `build`, `preview`.
 
-Моўная старонка — звычайны Astro-файл у каталогу мовы. Агульныя пераклады UI змяшчаюцца ў `src/i18n/ui.ts`; змест будучых асобных старонак лепш захоўваць побач у адпаведных тэчках, напрыклад `src/content/about/be.md`, `ru.md`, `en.md`.
+Каб змяніць тэкст, адкрый адпаведны Markdown-файл у `src/content/pages/<мова>/`. Напрыклад, галоўная старонка — `src/content/pages/be/home.md`, а практыка — `src/content/pages/be/practice.md`. У пачатку файла ёсць метаданыя `title` і `description`; ніжэй ідзе тэкст Markdown. Старонка відэа таксама мае асобны файл тэксту `awareness.md`. Ствары файлы з тым самым шляхам у `ru/` і `en/`, каб дадаць пераклады. Новая тэма ў `theory/` аўтаматычна атрымае асобны URL; спасылку на яе трэба дадаць у `theory.md`.
+
+Загатоўка новай старонкі, напрыклад `src/content/pages/be/theory/my-topic.md`:
+
+```md
+---
+lang: be
+title: Назва тэмы
+description: Кароткае апісанне старонкі.
+---
+
+Тэкст старонкі ў Markdown.
+```
+
+Для перакладу ствары такі ж файл у `ru/` і `en/` і змяні `lang`, назву, апісанне і тэкст. URL утвараецца з моўнай тэчкі і шляху файла: гэты прыклад будзе даступны як `/be/theory/my-topic/`.
+
+Галоўнае меню і яго назвы для кожнай мовы знаходзяцца ў `src/layouts/SiteLayout.astro` і `src/i18n/ui.ts`. Старонкі «Тэорыя» і «Практыка» ўтрымліваюць спісы спасылак у сваіх Markdown-файлах. Фота для старонкі «Повар» можна пакласці ў `public/images/` і ўставіць у Markdown як `![Апісанне фота](/images/cook.jpg)`. На старонцы «Повар» ёсць `mailto:`-спасылка: яна адкрывае паштовую праграму наведвальніка і не адпраўляе паведамленне без яго пацвярджэння.
 
 У файле `.astro` блок паміж `---` — код, які выконваецца на этапе зборкі. HTML пасля блока становіцца старонкай. Тэг `<style>` у кампаненце дадае стылі толькі для гэтага кампанента; агульныя стылі HTML-абалонкі знаходзяцца ў `src/layouts/SiteLayout.astro`.
 
@@ -53,7 +72,15 @@ npm run preview
 
 ### Падключэнне `demo_be.mp4`
 
-Чаканы ключ у прыватным bucket: `awareness/demo_be.mp4`. Ні bucket, ні яго аб'екты не павінны мець публічны URL. Доступ да файла дае асобны Cloudflare Worker з R2 binding; сайт выкарыстоўвае URL Worker-а праз `PUBLIC_VIDEO_BASE_URL` у `.env` або праз GitHub Actions variable `VIDEO_WORKER_BASE_URL` у рэпазіторыі `jathpr.github.io`.
+Чаканы ключ у прыватным bucket: `awareness/demo_be.mp4`. Ні bucket, ні яго аб'екты не павінны мець публічны URL. Доступ да файла дае асобны Cloudflare Worker з R2 binding; сайт выкарыстоўвае URL Worker-а праз `PUBLIC_VIDEO_BASE_URL` у лакальным `.env.local` або праз GitHub Actions variable `VIDEO_WORKER_BASE_URL` у рэпазіторыі `jathpr.github.io`.
+
+Для лакальнага запуску ствары файл `.env.local` у корані праекта:
+
+```env
+PUBLIC_VIDEO_BASE_URL=https://howtobe-video.jathpr.workers.dev
+```
+
+Пасля змены `.env.local` перазапусці `npm run dev`. Файл выключаны з Git; перадаецца толькі публічная базавая URL Worker-а.
 
 Worker знаходзіцца ў `cloudflare/video-worker/`; яго можна разгарнуць камандай `npx wrangler deploy --config cloudflare/video-worker/wrangler.jsonc`. Worker дазваляе чытаць толькі зададзенае відэа і падтрымлівае `Range`-запыты, патрэбныя для перамоткі. Пакінь Worker на Workers Free: 100 000 запытаў за дзень, пасля чаго Cloudflare вяртае блакіроўку да наступнага дня. Прыватны bucket не дазваляе абыйсці гэта абмежаванне прамым URL.
 

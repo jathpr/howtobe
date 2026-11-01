@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getCollection, render } from 'astro:content';
 import { locales, messages, type Locale } from '../../i18n/ui';
 
 interface Props {
@@ -15,23 +16,33 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props;
 const page = messages[locale];
+const contentPage = (await getCollection('pages')).find((entry) => entry.id === `${locale}/awareness`);
+if (!contentPage) {
+	throw new Error(`Missing awareness page content for locale "${locale}".`);
+}
+const { Content } = await render(contentPage);
 const mediaBaseUrl = import.meta.env.PUBLIC_VIDEO_BASE_URL?.replace(/\/+$/, '');
 const videoUrl = mediaBaseUrl ? `${mediaBaseUrl}/awareness/demo_be.mp4` : undefined;
 ---
 
 <SiteLayout
 	locale={locale}
-	title={page.awarenessTitle}
-	description={page.awarenessTitle}
+	title={contentPage.data.title}
+	description={contentPage.data.description}
 >
-	<main>
+	<main class="awareness-page">
 		<a class="back-link" href={`/${locale}/`}>← {page.backHome}</a>
-		<h1>{page.awarenessTitle}</h1>
+		<h1>{contentPage.data.title}</h1>
+		<div class="video-intro">
+			<Content />
+		</div>
 
 		{videoUrl ? (
-			<video controls preload="metadata" playsinline>
-				<source src={videoUrl} type="video/mp4" />
-			</video>
+			<div class="video-frame">
+				<video controls preload="metadata" playsinline>
+					<source src={videoUrl} type="video/mp4" />
+				</video>
+			</div>
 		) : (
 			<p class="notice">{page.videoUnavailable}</p>
 		)}
@@ -39,39 +50,70 @@ const videoUrl = mediaBaseUrl ? `${mediaBaseUrl}/awareness/demo_be.mp4` : undefi
 </SiteLayout>
 
 <style>
-	main {
+	.awareness-page {
 		display: grid;
 		align-content: center;
-		gap: 1.5rem;
-		width: min(100% - 3rem, 56rem);
-		min-height: 100vh;
+		gap: clamp(1.25rem, 3vh, 2rem);
+		width: min(100%, 68rem);
+		flex: 1;
 		margin-inline: auto;
-		padding-block: 4rem;
+		padding-block: clamp(4rem, 12vh, 8rem);
 	}
 
 	.back-link {
 		width: fit-content;
+		color: var(--muted);
 		font-family: system-ui, sans-serif;
 		font-size: 0.9rem;
 		text-underline-offset: 0.25em;
+		text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
 	}
 
 	h1 {
 		margin: 0;
-		font-size: clamp(2.5rem, 9vw, 5rem);
+		font-size: clamp(3.5rem, 10vw, 7rem);
 		font-weight: 400;
-		letter-spacing: -0.05em;
+		letter-spacing: -0.075em;
+		line-height: 0.98;
+	}
+
+	.video-frame {
+		overflow: hidden;
+		padding: clamp(0.35rem, 1vw, 0.7rem);
+		border: 1px solid rgb(116 107 92 / 20%);
+		border-radius: 0.5rem;
+		background: rgb(243 237 223 / 76%);
+		box-shadow: 0 1.25rem 3.5rem rgb(63 52 35 / 10%);
 	}
 
 	video {
 		display: block;
 		width: 100%;
 		max-height: 75vh;
+		border-radius: 0.2rem;
 		background: #161616;
 	}
 
 	.notice {
 		margin: 0;
+		color: var(--muted);
 		font-size: 1.1rem;
+		line-height: 1.6;
+	}
+
+	.video-intro {
+		color: var(--muted);
+		font-size: clamp(1.05rem, 2vw, 1.25rem);
+		line-height: 1.55;
+	}
+
+	.video-intro :global(p) {
+		margin: 0;
+	}
+
+	@media (max-width: 600px) {
+		.awareness-page {
+			padding-block: 5rem 3rem;
+		}
 	}
 </style>
